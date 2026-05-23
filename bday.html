@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Cute Birthday Experience</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+height:100vh;
+overflow:hidden;
+font-family:system-ui;
+background:linear-gradient(135deg,#0b0b1a,#1a1033,#2a1b4a);
+color:#fff;
+}
+
+/* animated gradient blobs */
+.blob{
+position:fixed;
+width:300px;
+height:300px;
+filter:blur(80px);
+opacity:.4;
+border-radius:50%;
+animation:move 12s infinite alternate ease-in-out;
+}
+
+.blob1{background:#ff5c8a;top:10%;left:10%}
+.blob2{background:#6c63ff;bottom:10%;right:10%}
+.blob3{background:#ffd166;top:40%;left:50%}
+
+@keyframes move{
+0%{transform:translate(0,0) scale(1)}
+100%{transform:translate(60px,-40px) scale(1.2)}
+}
+
+canvas{
+position:fixed;
+inset:0;
+z-index:0;
+opacity:.25;
+}
+
+.scene{
+position:absolute;
+inset:0;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+opacity:0;
+transform:translateY(20px);
+transition:.8s ease;
+text-align:center;
+pointer-events:none;
+}
+
+.scene.active{
+opacity:1;
+transform:translateY(0);
+pointer-events:auto;
+}
+
+.card{
+max-width:520px;
+width:100%;
+padding:26px;
+border-radius:24px;
+background:rgba(255,255,255,0.07);
+backdrop-filter:blur(16px);
+border:1px solid rgba(255,255,255,0.12);
+box-shadow:0 40px 120px rgba(0,0,0,0.6);
+animation:pop .6s ease;
+}
+
+@keyframes pop{
+from{transform:scale(.95);opacity:0}
+to{transform:scale(1);opacity:1}
+}
+
+h1{
+font-size:1.9rem;
+margin-bottom:10px;
+}
+
+p{
+white-space:pre-line;
+line-height:1.6;
+min-height:120px;
+opacity:.95;
+}
+
+button{
+margin-top:12px;
+padding:12px 18px;
+border:none;
+border-radius:14px;
+background:linear-gradient(90deg,#ff5c8a,#ff9f68);
+color:white;
+font-size:1rem;
+cursor:pointer;
+transition:.2s;
+box-shadow:0 10px 25px rgba(255,92,138,.3);
+}
+
+button:hover{
+transform:scale(1.03);
+box-shadow:0 15px 35px rgba(255,92,138,.5);
+}
+
+button:active{
+transform:scale(.96);
+}
+
+/* floating emojis */
+.floating{
+position:fixed;
+font-size:18px;
+animation:floatUp linear infinite;
+opacity:.85;
+pointer-events:none;
+}
+
+@keyframes floatUp{
+0%{transform:translateY(110vh) scale(.8);opacity:0}
+10%{opacity:1}
+100%{transform:translateY(-10vh) scale(1.2);opacity:0}
+}
+
+/* cursor trail */
+.trail{
+position:fixed;
+width:8px;
+height:8px;
+border-radius:50%;
+background:white;
+pointer-events:none;
+animation:fade .6s forwards;
+}
+
+@keyframes fade{
+to{transform:scale(2);opacity:0}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<canvas id="bg"></canvas>
+
+<div class="scene active" id="s1">
+<div class="card">
+<h1>🎀 Birthday Mode</h1>
+<p>A small cute experience made for someone who makes life lighter ✨</p>
+<button onclick="start()">Start</button>
+</div>
+</div>
+
+<div class="scene" id="s2">
+<div class="card">
+<h1>Hey Aisha 👋</h1>
+<p id="t"></p>
+<button onclick="next()">Continue</button>
+</div>
+</div>
+
+<div class="scene" id="s3">
+<div class="card">
+<h1>💖 Final</h1>
+<p id="f"></p>
+</div>
+</div>
+
+<script>
+
+const c=document.getElementById("bg");
+const x=c.getContext("2d");
+c.width=innerWidth;
+c.height=innerHeight;
+
+let p=Array.from({length:60},()=>({
+x:Math.random()*c.width,
+y:Math.random()*c.height,
+r:Math.random()*2,
+dx:(Math.random()-.5)*.3,
+dy:(Math.random()-.5)*.3
+}));
+
+function anim(){
+x.clearRect(0,0,c.width,c.height);
+p.forEach(i=>{
+i.x+=i.dx;i.y+=i.dy;
+if(i.x<0||i.x>c.width)i.dx*=-1;
+if(i.y<0||i.y>c.height)i.dy*=-1;
+x.beginPath();
+x.arc(i.x,i.y,i.r,0,Math.PI*2);
+x.fillStyle="rgba(255,255,255,0.25)";
+x.fill();
+});
+requestAnimationFrame(anim);
+}
+anim();
+
+function show(id){
+document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+}
+
+function type(id,text,i=0){
+const el=document.getElementById(id);
+if(i===0)el.innerHTML="";
+if(i<text.length){
+el.innerHTML+=text[i];
+setTimeout(()=>type(id,text,i+1),25);
+}
+}
+
+function start(){
+show('s2');
+spawn();
+
+const msg=`Okay this is just a small thing 😄
+
+You’ve got that mix of moods:
+funny 😂 stressed 😭 happy 😆 angry 😤
+
+But somehow it all just fits you perfectly.`;
+
+type('t',msg);
+}
+
+function next(){
+show('s3');
+spawn();
+
+const msg=`So yeah Aisha 💖
+
+Just stay your chaotic-cute self.
+That’s honestly the best version already.`;
+
+type('f',msg);
+}
+
+function spawn(){
+const emojis=["💖","✨","🎀","🐱","🐻","💫","🌸"];
+
+for(let i=0;i<16;i++){
+const d=document.createElement('div');
+d.className='floating';
+d.innerText=emojis[Math.floor(Math.random()*emojis.length)];
+d.style.left=Math.random()*100+'vw';
+d.style.animationDuration=(4+Math.random()*4)+'s';
+document.body.appendChild(d);
+setTimeout(()=>d.remove(),8000);
+}
+}
+
+// cursor trail
+window.addEventListener('mousemove',e=>{
+const t=document.createElement('div');
+t.className='trail';
+t.style.left=e.clientX+'px';
+t.style.top=e.clientY+'px';
+document.body.appendChild(t);
+setTimeout(()=>t.remove(),600);
+});
+
+</script>
+
+</body>
+</html>
